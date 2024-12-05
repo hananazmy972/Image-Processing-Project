@@ -1,6 +1,12 @@
 # Image Segmentation Tool
 
 This project is a Python-based image processing tool built using **Tkinter** for the graphical user interface (GUI), **OpenCV** for image processing, and **PIL** for displaying images. The tool allows users to load images, apply various image processing algorithms, and save the processed images.
+## Class Digram
+
+You can view the class diagram for this project in the attached PDF:
+
+[Download Class Diagram (PDF)](https://drive.google.com/file/d/19KSIM2RJWtHeBokXupRAYGkxKBspnlFX/view?usp=sharing)
+
 
 ## Features
 
