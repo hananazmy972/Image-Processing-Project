@@ -66,9 +66,43 @@ class ImageProcessor:
 
     @staticmethod
     def histogram_equalization(image):
-        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        equalized = cv2.equalizeHist(gray)
-        return cv2.cvtColor(equalized, cv2.COLOR_GRAY2BGR)
+        # Step 1: Convert to Grayscale
+        rows, cols, _ = image.shape
+        gray = np.zeros((rows, cols), dtype=np.uint8)
+        for i in range(rows):
+            for j in range(cols):
+                r, g, b = image[i, j]
+                gray[i, j] = int(0.299 * r + 0.587 * g + 0.114 * b)
+
+        # Step 2: Calculate Histogram
+        hist = np.zeros(256, dtype=int)
+        for i in range(rows):
+            for j in range(cols):
+                hist[gray[i, j]] += 1
+
+        # Step 3: Calculate CDF Manually
+        cdf = np.zeros(256, dtype=int)
+        cdf[0] = hist[0]
+        for i in range(1, 256):
+            cdf[i] = cdf[i - 1] + hist[i]
+
+        # Step 4: Normalize the CDF
+        cdf_min = next(c for c in cdf if c > 0)  # First non-zero value in the CDF
+        total_pixels = rows * cols
+        cdf_normalized = np.zeros(256, dtype=np.uint8)
+        for i in range(256):
+            cdf_normalized[i] = int(((cdf[i] - cdf_min) / (total_pixels - cdf_min)) * 255)
+
+        # Step 5: Map Original Pixels to Equalized Values
+        equalized = np.zeros_like(gray, dtype=np.uint8)
+        for i in range(rows):
+            for j in range(cols):
+                equalized[i, j] = cdf_normalized[gray[i, j]]
+
+        # Step 6: Convert Back to 3-Channel Image
+        equalized_bgr = np.stack([equalized] * 3, axis=-1)
+
+        return equalized_bgr
 
     @staticmethod
     def show_histogram(image):
