@@ -33,7 +33,7 @@ The following image processing techniques are implemented in this project:
 - Matplotlib
 
 
-##Usage
+## Usage
 
 1. Load an image: Click on the "Load Image" button to select an image from your local storage.
 2. Apply image processing: Use the buttons on the left to apply various image processing algorithms like edge detection, noise addition/removal, or grayscale conversion.
