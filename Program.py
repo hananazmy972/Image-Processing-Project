@@ -26,7 +26,17 @@ class Image:
 class ImageProcessor:
     @staticmethod
     def canny_edge_detection(image):
-        return cv2.Canny(image, 100, 200)
+        #Setting parameter values 
+        t_lower = 50 # Lower Threshold 
+        t_upper = 150 # Upper threshold 
+
+        # Applying the Canny Edge filter 
+        edge = cv2.Canny(image, t_lower, t_upper) 
+
+        cv2.imshow('original', image) 
+        cv2.imshow('edge', edge) 
+        cv2.waitKey(0) 
+        cv2.destroyAllWindows()
 
     @staticmethod
     def sobel_edge_detection(image):
@@ -38,12 +48,15 @@ class ImageProcessor:
 
     @staticmethod
     def prewitt_edge_detection(image):
-        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        kernelx = np.array([[1, 0, -1], [1, 0, -1], [1, 0, -1]])
-        kernely = np.array([[1, 1, 1], [0, 0, 0], [-1, -1, -1]])
-        prewittx = cv2.filter2D(gray, -1, kernelx)
-        prewitty = cv2.filter2D(gray, -1, kernely)
-        return prewittx + prewitty
+      gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) # convert to grey scale 
+      img_gaussian = cv2.GaussianBlur(gray,(3,3),0) # reduce noise
+      #Define Prewitt Kernels
+      kernelx = np.array([[1,1,1],[0,0,0],[-1,-1,-1]]) #kernelx: Detects horizontal edges.
+      kernely = np.array([[-1,0,1],[-1,0,1],[-1,0,1]])  #kernely: Detects vertical edges
+      #Apply the Kernels:
+      img_prewittx = cv2.filter2D(img_gaussian, -1, kernelx) #
+      img_prewitty = cv2.filter2D(img_gaussian, -1, kernely)
+      return img_prewittx + img_prewitty
 
     @staticmethod
     def difference_of_gaussian(image):
