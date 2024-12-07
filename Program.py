@@ -6,7 +6,7 @@ import numpy as np
 from PIL import Image as PILImage, ImageTk
 import matplotlib.pyplot as plt
 
-# Class to represent an image
+# Image
 class Image:
     def __init__(self):
         self.image_data = None
@@ -22,7 +22,7 @@ class Image:
         if self.image_data is not None:
             self.image_data = cv2.cvtColor(self.image_data, cv2.COLOR_BGR2GRAY)
 
-# Class for image processing algorithms
+# algorithms
 class ImageProcessor:
     @staticmethod
     def canny_edge_detection(image):
@@ -46,16 +46,18 @@ class ImageProcessor:
         sobel = cv2.magnitude(sobelx, sobely)
         return np.uint8(np.clip(sobel, 0, 255))
 
+    # Prewitt edges
     @staticmethod
     def prewitt_edge_detection(image):
-      gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) # convert to grey scale 
-      img_gaussian = cv2.GaussianBlur(gray,(3,3),0) # reduce noise
-      #Define Prewitt Kernels
-      kernelx = np.array([[1,1,1],[0,0,0],[-1,-1,-1]]) #kernelx: Detects horizontal edges.
-      kernely = np.array([[-1,0,1],[-1,0,1],[-1,0,1]])  #kernely: Detects vertical edges
-      #Apply the Kernels:
-      img_prewittx = cv2.filter2D(img_gaussian, -1, kernelx) #
-      img_prewitty = cv2.filter2D(img_gaussian, -1, kernely)
+      # convert to gray & reduce noise
+      gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) 
+      img_gaussian = cv2.GaussianBlur(gray,(3,3),0) 
+      # masks
+      prewittx = np.array([[1,1,1],[0,0,0],[-1,-1,-1]]) 
+      prewitty = np.array([[-1,0,1],[-1,0,1],[-1,0,1]])  
+      # apply masks
+      img_prewittx = cv2.filter2D(img_gaussian, -1, prewittx) 
+      img_prewitty = cv2.filter2D(img_gaussian, -1, prewitty)
       return img_prewittx + img_prewitty
 
     @staticmethod
