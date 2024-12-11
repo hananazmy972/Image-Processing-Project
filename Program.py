@@ -61,7 +61,9 @@ class ImageProcessor:
             noise = np.random.normal(0, noise_level, image.shape).astype(np.uint8)
         else:  # Color image
             noise = np.random.normal(0, noise_level, image.shape).astype(np.uint8)
-        return cv2.add(image, noise)
+        noisy_image = image.astype(np.int16) + noise.astype(np.int16)  # Prevent overflow
+        noisy_image = np.clip(noisy_image, 0, 255)  # Ensure values are within valid range
+        return noisy_image.astype(np.uint8)
 
     
     @staticmethod
