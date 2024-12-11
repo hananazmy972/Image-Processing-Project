@@ -6,7 +6,7 @@ import numpy as np
 from PIL import Image as PILImage, ImageTk
 import matplotlib.pyplot as plt
 
-# Image
+# Class to represent an image
 class Image:
     def __init__(self):
         self.image_data = None
@@ -22,21 +22,11 @@ class Image:
         if self.image_data is not None:
             self.image_data = cv2.cvtColor(self.image_data, cv2.COLOR_BGR2GRAY)
 
-# algorithms
+# Class for image processing algorithms
 class ImageProcessor:
     @staticmethod
     def canny_edge_detection(image):
-        #Setting parameter values 
-        t_lower = 50 # Lower Threshold 
-        t_upper = 150 # Upper threshold 
-
-        # Applying the Canny Edge filter 
-        edge = cv2.Canny(image, t_lower, t_upper) 
-
-        cv2.imshow('original', image) 
-        cv2.imshow('edge', edge) 
-        cv2.waitKey(0) 
-        cv2.destroyAllWindows()
+        return cv2.Canny(image, 100, 200)
 
     @staticmethod
     def sobel_edge_detection(image):
@@ -46,19 +36,14 @@ class ImageProcessor:
         sobel = cv2.magnitude(sobelx, sobely)
         return np.uint8(np.clip(sobel, 0, 255))
 
-    # Prewitt edges
     @staticmethod
     def prewitt_edge_detection(image):
-      # convert to gray & reduce noise
-      gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) 
-      img_gaussian = cv2.GaussianBlur(gray,(3,3),0) 
-      # masks
-      prewittx = np.array([[1,1,1],[0,0,0],[-1,-1,-1]]) 
-      prewitty = np.array([[-1,0,1],[-1,0,1],[-1,0,1]])  
-      # apply masks
-      img_prewittx = cv2.filter2D(img_gaussian, -1, prewittx) 
-      img_prewitty = cv2.filter2D(img_gaussian, -1, prewitty)
-      return img_prewittx + img_prewitty
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        kernelx = np.array([[1, 0, -1], [1, 0, -1], [1, 0, -1]])
+        kernely = np.array([[1, 1, 1], [0, 0, 0], [-1, -1, -1]])
+        prewittx = cv2.filter2D(gray, -1, kernelx)
+        prewitty = cv2.filter2D(gray, -1, kernely)
+        return prewittx + prewitty
 
     @staticmethod
     def difference_of_gaussian(image):
@@ -88,35 +73,35 @@ class ImageProcessor:
             for j in range(cols):
                 r, g, b = image[i, j]
                 gray[i, j] = int(0.299 * r + 0.587 * g + 0.114 * b)
-
+ 
         # Step 2: Calculate Histogram
         hist = np.zeros(256, dtype=int)
         for i in range(rows):
             for j in range(cols):
                 hist[gray[i, j]] += 1
-
+ 
         # Step 3: Calculate CDF Manually
         cdf = np.zeros(256, dtype=int)
         cdf[0] = hist[0]
         for i in range(1, 256):
             cdf[i] = cdf[i - 1] + hist[i]
-
+ 
         # Step 4: Normalize the CDF
         cdf_min = next(c for c in cdf if c > 0)  # First non-zero value in the CDF
         total_pixels = rows * cols
         cdf_normalized = np.zeros(256, dtype=np.uint8)
         for i in range(256):
             cdf_normalized[i] = int(((cdf[i] - cdf_min) / (total_pixels - cdf_min)) * 255)
-
+ 
         # Step 5: Map Original Pixels to Equalized Values
         equalized = np.zeros_like(gray, dtype=np.uint8)
         for i in range(rows):
             for j in range(cols):
                 equalized[i, j] = cdf_normalized[gray[i, j]]
-
+ 
         # Step 6: Convert Back to 3-Channel Image
         equalized_bgr = np.stack([equalized] * 3, axis=-1)
-
+ 
         return equalized_bgr
 
     @staticmethod
