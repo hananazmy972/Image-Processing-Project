@@ -38,12 +38,16 @@ class ImageProcessor:
 
     @staticmethod
     def prewitt_edge_detection(image):
-        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        kernelx = np.array([[1, 0, -1], [1, 0, -1], [1, 0, -1]])
-        kernely = np.array([[1, 1, 1], [0, 0, 0], [-1, -1, -1]])
-        prewittx = cv2.filter2D(gray, -1, kernelx)
-        prewitty = cv2.filter2D(gray, -1, kernely)
-        return prewittx + prewitty
+      # convert to gray & reduce noise
+      gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) 
+      img_gaussian = cv2.GaussianBlur(gray,(3,3),0) 
+      # masks
+      prewittx = np.array([[1,1,1],[0,0,0],[-1,-1,-1]]) 
+      prewitty = np.array([[-1,0,1],[-1,0,1],[-1,0,1]])  
+      # apply masks
+      img_prewittx = cv2.filter2D(img_gaussian, -1, prewittx) 
+      img_prewitty = cv2.filter2D(img_gaussian, -1, prewitty)
+      return img_prewittx + img_prewitty
 
     @staticmethod
     def difference_of_gaussian(image):
