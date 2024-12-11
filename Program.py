@@ -143,7 +143,6 @@ class GUI:
         self.hist_eq_button = tk.Button(root, text="Histogram Equalization", command=self.apply_histogram_equalization)
         self.histogram_button = tk.Button(root, text="Show Histogram", command=self.show_histogram)
         self.save_button = tk.Button(root, text="Save Processed Image", command=self.save_image)
-        self.grayscale_button = tk.Button(root, text="Convert to Grayscale", command=self.convert_to_grayscale)
 
         self.noise_slider = tk.Scale(root, from_=0, to=10, orient="horizontal", label="Noise Level",
                                      variable=self.noise_level)
@@ -160,7 +159,6 @@ class GUI:
         self.hist_eq_button.grid(row=8, column=0, padx=10, pady=10)
         self.histogram_button.grid(row=9, column=0, padx=10, pady=10)
         self.save_button.grid(row=10, column=0, padx=10, pady=10)
-        self.grayscale_button.grid(row=11, column=0, padx=10, pady=10)
         self.noise_slider.grid(row=12, column=0, padx=10, pady=10)
         self.canvas.grid(row=0, column=1, rowspan=13, padx=10, pady=10)
 
@@ -206,11 +204,6 @@ class GUI:
     def show_histogram(self):
         if self.image.image_data is not None:
             ImageProcessor.show_histogram(self.image.image_data)
-
-    def convert_to_grayscale(self):
-        if self.image.image_data is not None:
-            self.image.convert_to_grayscale()
-            self.display_image(cv2.cvtColor(self.image.image_data, cv2.COLOR_GRAY2BGR))
 
     def process_and_display(self, process_function):
         if self.image.image_data is None:
