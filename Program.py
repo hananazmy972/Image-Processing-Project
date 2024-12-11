@@ -21,12 +21,114 @@ class Image:
     def convert_to_grayscale(self):
         if self.image_data is not None:
             self.image_data = cv2.cvtColor(self.image_data, cv2.COLOR_BGR2GRAY)
+    
 
 # Class for image processing algorithms
 class ImageProcessor:
+        ## CANNY Steps ## 
+    def gaussian_kernel(size, sigma=1):
+        """Generate a Gaussian kernel."""
+        kernel = np.fromfunction(
+            lambda x, y: (1 / (2 * np.pi * sigma ** 2)) * np.exp(-((x - (size - 1) / 2) ** 2 + (y - (size - 1) / 2) ** 2) / (2 * sigma ** 2)),
+            (size, size)
+        )
+        return kernel / np.sum(kernel)
+
+    def sobel_filters(img):
+        """Apply Sobel filters to compute gradients."""
+        Kx = np.array([[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]])
+        Ky = np.array([[1, 2, 1], [0, 0, 0], [-1, -2, -1]])
+
+        Gx = cv2.filter2D(img, cv2.CV_64F, Kx)
+        Gy = cv2.filter2D(img, cv2.CV_64F, Ky)
+
+        magnitude = np.sqrt(Gx ** 2 + Gy ** 2)
+        angle = np.arctan2(Gy, Gx)
+        return magnitude, angle
+
+    def non_maximum_suppression(magnitude, angle):
+        """Suppress non-maximum pixels in the gradient direction."""
+        H, W = magnitude.shape
+        output = np.zeros((H, W), dtype=np.float32)
+        angle = angle * 180.0 / np.pi
+        angle[angle < 0] += 180
+
+        for i in range(1, H - 1):
+            for j in range(1, W - 1):
+                q = 255
+                r = 255
+
+                # Check the gradient direction
+                if (0 <= angle[i, j] < 22.5) or (157.5 <= angle[i, j] <= 180):
+                    q = magnitude[i, j + 1]
+                    r = magnitude[i, j - 1]
+                elif 22.5 <= angle[i, j] < 67.5:
+                    q = magnitude[i + 1, j - 1]
+                    r = magnitude[i - 1, j + 1]
+                elif 67.5 <= angle[i, j] < 112.5:
+                    q = magnitude[i + 1, j]
+                    r = magnitude[i - 1, j]
+                elif 112.5 <= angle[i, j] < 157.5:
+                    q = magnitude[i - 1, j - 1]
+                    r = magnitude[i + 1, j + 1]
+
+                # Suppress if not a local maximum
+                if magnitude[i, j] >= q and magnitude[i, j] >= r:
+                    output[i, j] = magnitude[i, j]
+
+        return output
+
+    def double_threshold(img, low_threshold, high_threshold):
+        """Apply double thresholding."""
+        strong = 255
+        weak = 50
+
+        strong_i, strong_j = np.where(img >= high_threshold)
+        weak_i, weak_j = np.where((img >= low_threshold) & (img < high_threshold))
+
+        output = np.zeros_like(img, dtype=np.uint8)
+        output[strong_i, strong_j] = strong
+        output[weak_i, weak_j] = weak
+
+        return output, weak, strong
+
+    def edge_tracking_by_hysteresis(img, weak, strong):
+        """Perform edge tracking by hysteresis."""
+        H, W = img.shape
+        for i in range(1, H - 1):
+            for j in range(1, W - 1):
+                if img[i, j] == weak:
+                    # Check if any neighbor is strong
+                    if (img[i + 1, j - 1:j + 2] == strong).any() or (img[i - 1, j - 1:j + 2] == strong).any() or (img[i, [j - 1, j + 1]] == strong).any():
+                        img[i, j] = strong
+                    else:
+                        img[i, j] = 0
+        return img
     @staticmethod
-    def canny_edge_detection(image):
-        return cv2.Canny(image, 100, 200)
+    def canny_edge_detection(image, low_threshold=50, high_threshold=150):
+        # Convert to grayscale if needed
+        if len(image.shape) == 3:
+            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        else:
+            gray = image
+
+        # Apply Gaussian blur
+        kernel = ImageProcessor.gaussian_kernel(size=5, sigma=1)
+        smoothed = cv2.filter2D(gray, cv2.CV_64F, kernel)
+
+        # Compute gradient magnitude and direction
+        magnitude, angle = ImageProcessor.sobel_filters(smoothed)
+
+        # Apply non-maximum suppression
+        suppressed = ImageProcessor.non_maximum_suppression(magnitude, angle)
+
+        # Apply double threshold
+        thresholded, weak, strong = ImageProcessor.double_threshold(suppressed, low_threshold, high_threshold)
+
+        # Perform edge tracking by hysteresis
+        edges = ImageProcessor.edge_tracking_by_hysteresis(thresholded, weak, strong)
+
+        return edges
 
     @staticmethod
     def sobel_edge_detection(image):
@@ -181,7 +283,19 @@ class GUI:
             self.display_image(self.image.image_data)
 
     def apply_canny(self):
-        self.process_and_display(ImageProcessor.canny_edge_detection)
+        if self.image.image_data is None:
+            messagebox.showerror("Error", "Load an image first!")
+            return
+        
+        # Ask for low and high thresholds
+        low_threshold = 50  # Set default or dynamically ask the user for input
+        high_threshold = 150  # Set default or dynamically ask the user for input
+        
+        # Apply Canny edge detection
+        self.processed_image = ImageProcessor.canny_edge_detection(self.image.image_data, low_threshold, high_threshold)
+        
+        # Display the processed image (grayscale converted to RGB for display)
+        self.display_image(cv2.cvtColor(self.processed_image, cv2.COLOR_GRAY2BGR))
 
     def apply_sobel(self):
         self.process_and_display(ImageProcessor.sobel_edge_detection)
