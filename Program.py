@@ -140,16 +140,28 @@ class ImageProcessor:
 
     @staticmethod
     def prewitt_edge_detection(image):
-      # convert to gray & reduce noise
-      gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) 
-      img_gaussian = cv2.GaussianBlur(gray,(3,3),0) 
-      # masks
-      prewittx = np.array([[1,1,1],[0,0,0],[-1,-1,-1]]) 
-      prewitty = np.array([[-1,0,1],[-1,0,1],[-1,0,1]])  
-      # apply masks
-      img_prewittx = cv2.filter2D(img_gaussian, -1, prewittx) 
-      img_prewitty = cv2.filter2D(img_gaussian, -1, prewitty)
-      return img_prewittx + img_prewitty
+            # Custom grayscale conversion
+            def to_grayscale(image):
+                gray_image = np.zeros((image.shape[0], image.shape[1]), dtype=np.uint8)
+                for i in range(image.shape[0]):
+                    for j in range(image.shape[1]):
+                        r, g, b = image[i, j]
+                        gray = int(0.299 * r + 0.587 * g + 0.114 * b)
+                        gray_image[i, j] = gray
+                return gray_image
+
+            gray = to_grayscale(image)  # Convert to grayscale without built-in function
+            img_gaussian = cv2.GaussianBlur(gray, (3, 3), 0)  # Reduce noise
+
+            # Define Prewitt Kernels
+            kernelx = np.array([[1, 1, 1], [0, 0, 0], [-1, -1, -1]])  # Detects horizontal edges
+            kernely = np.array([[-1, 0, 1], [-1, 0, 1], [-1, 0, 1]])  # Detects vertical edges
+
+            # Apply the Kernels
+            img_prewittx = cv2.filter2D(img_gaussian, -1, kernelx)
+            img_prewitty = cv2.filter2D(img_gaussian, -1, kernely)
+
+            return img_prewittx + img_prewitty
 
     @staticmethod
     def difference_of_gaussian(image):
