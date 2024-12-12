@@ -233,52 +233,74 @@ class ImageProcessor:
         plt.ylabel("Frequency")
         plt.show()
 
-# GUI Class
 class GUI:
     def __init__(self, root):
         self.root = root
         self.root.title("Image Segmentation Tool")
+        self.root.config(bg="#D4BDAC")
+        # Set window size
+        self.root.geometry("1000x800")
+
         self.image = Image()
         self.processed_image = None
 
+        # Load and set background image
+        bg_image = PILImage.open("background.jpg")  # You'll need to provide this image
+        bg_image = bg_image.resize((1000, 800))
+        self.bg_photo = ImageTk.PhotoImage(bg_image)
+        
+        # Create background label
+        bg_label = tk.Label(root, image=self.bg_photo)
+        bg_label.place(x=0, y=0, relwidth=1, relheight=1)
+
+        # Create frames for better organization
+        self.button_frame = tk.Frame(root, bg="#ebddcc")
+        self.button_frame.pack(side=tk.LEFT, padx=100, pady=20)
+
+        self.canvas = tk.Label(root, bg="#ebddcc")
+        self.canvas.place(x=434, y=128) 
+
+        # Create buttons with rounded edges
+        button_style = {'bg': "#be9764", 'fg': "white", 'width': 20 ,'font': ('Arial', 13) }
+
+        # Create buttons
+        self.load_button = tk.Button(self.button_frame, text="Load Image", command=self.load_image,**button_style)
+        self.show_original_button = tk.Button(self.button_frame, text="Show Original Image", command=self.show_original,**button_style)
+        self.canny_button = tk.Button(self.button_frame, text="Canny Edge Detection", command=self.apply_canny,**button_style)
+        self.sobel_button = tk.Button(self.button_frame, text="Sobel Edge Detection", command=self.apply_sobel,**button_style)
+        self.prewitt_button = tk.Button(self.button_frame, text="Prewitt Edge Detection", command=self.apply_prewitt,**button_style)
+        self.dog_button = tk.Button(self.button_frame, text="Difference of Gaussian", command=self.apply_dog,**button_style)
+        self.add_noise_button = tk.Button(self.button_frame, text="Add Noise", command=self.apply_add_noise,**button_style)
+        self.remove_noise_button = tk.Button(self.button_frame, text="Remove Noise", command=self.apply_remove_noise,**button_style)
+        self.hist_eq_button = tk.Button(self.button_frame, text="Histogram Equalization", command=self.apply_histogram_equalization,**button_style)
+        self.histogram_button = tk.Button(self.button_frame, text="Show Histogram", command=self.show_histogram, **button_style)
+        self.save_button = tk.Button(self.button_frame, text="Save Processed Image", command=self.save_image,**button_style)
+
         # Noise level slider
         self.noise_level = tk.IntVar(value=5)
+        self.noise_slider = tk.Scale(self.button_frame, from_=0, to=10, orient="horizontal", label="Noise Level", variable=self.noise_level ,bg="#ebddcc", length=200,width=20,font=("Arial", 12))
 
-        # UI Components
-        self.canvas = tk.Label(root)
-        self.load_button = tk.Button(root, text="Load Image", command=self.load_image)
-        self.show_original_button = tk.Button(root, text="Show Original Image", command=self.show_original)
-        self.canny_button = tk.Button(root, text="Canny Edge Detection", command=self.apply_canny)
-        self.sobel_button = tk.Button(root, text="Sobel Edge Detection", command=self.apply_sobel)
-        self.prewitt_button = tk.Button(root, text="Prewitt Edge Detection", command=self.apply_prewitt)
-        self.dog_button = tk.Button(root, text="Difference of Gaussian", command=self.apply_dog)
-        self.add_noise_button = tk.Button(root, text="Add Noise", command=self.apply_add_noise)
-        self.remove_noise_button = tk.Button(root, text="Remove Noise", command=self.apply_remove_noise)
-        self.hist_eq_button = tk.Button(root, text="Histogram Equalization", command=self.apply_histogram_equalization)
-        self.histogram_button = tk.Button(root, text="Show Histogram", command=self.show_histogram)
-        self.save_button = tk.Button(root, text="Save Processed Image", command=self.save_image)
+        # Pack buttons and slider
+        buttons = [
+            self.load_button, self.show_original_button, self.canny_button,
+            self.sobel_button, self.prewitt_button, self.dog_button,
+            self.add_noise_button, self.remove_noise_button,
+            self.hist_eq_button, self.histogram_button, self.save_button
+        ]
 
-        self.noise_slider = tk.Scale(root, from_=0, to=10, orient="horizontal", label="Noise Level",
-                                     variable=self.noise_level)
+        for button in buttons:
+            button.pack(pady=9)
 
-        # Layout
-        self.load_button.grid(row=0, column=0, padx=10, pady=10)
-        self.show_original_button.grid(row=1, column=0, padx=10, pady=10)
-        self.canny_button.grid(row=2, column=0, padx=10, pady=10)
-        self.sobel_button.grid(row=3, column=0, padx=10, pady=10)
-        self.prewitt_button.grid(row=4, column=0, padx=10, pady=10)
-        self.dog_button.grid(row=5, column=0, padx=10, pady=10)
-        self.add_noise_button.grid(row=6, column=0, padx=10, pady=10)
-        self.remove_noise_button.grid(row=7, column=0, padx=10, pady=10)
-        self.hist_eq_button.grid(row=8, column=0, padx=10, pady=10)
-        self.histogram_button.grid(row=9, column=0, padx=10, pady=10)
-        self.save_button.grid(row=10, column=0, padx=10, pady=10)
-        self.noise_slider.grid(row=12, column=0, padx=10, pady=10)
-        self.canvas.grid(row=0, column=1, rowspan=13, padx=10, pady=10)
+        self.noise_slider.pack(pady=10)
 
     def display_image(self, img_data):
         img_rgb = cv2.cvtColor(img_data, cv2.COLOR_BGR2RGB)
         img_pil = PILImage.fromarray(img_rgb)
+        img_tk = ImageTk.PhotoImage(img_pil)
+         # Resize the PIL image before converting it to PhotoImage
+        img_pil = img_pil.resize((488, 528))  # Adjust to desired size or use dynamic scaling
+
+        # Convert to PhotoImage
         img_tk = ImageTk.PhotoImage(img_pil)
         self.canvas.config(image=img_tk)
         self.canvas.image = img_tk
