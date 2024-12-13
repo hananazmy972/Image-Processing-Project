@@ -17,6 +17,7 @@ This project is a comprehensive **Image Segmentation and Processing Toolkit** de
   - Add Gaussian noise to simulate real-world conditions.
   - Remove noise using Gaussian blurring.
 - **Histogram Equalization**: Enhance image contrast by redistributing pixel intensity.
+- **Show Histogram**: Generate and display histograms to analyze the distribution of pixel intensity values in images.
 
 ## Algorithms Description
 
