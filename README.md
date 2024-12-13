@@ -1,46 +1,98 @@
-# Image Segmentation Tool
+# Image Segmentation and Processing Toolkit
 
-This project is a Python-based image processing tool built using **Tkinter** for the graphical user interface (GUI), **OpenCV** for image processing, and **PIL** for displaying images. The tool allows users to load images, apply various image processing algorithms, and save the processed images.
-## Class Digram
+## Overview
 
-You can view the class diagram for this project in the attached PDF:
-
-[Download Class Diagram (PDF)](https://drive.google.com/file/d/19KSIM2RJWtHeBokXupRAYGkxKBspnlFX/view?usp=sharing)
-
+This project is a comprehensive **Image Segmentation and Processing Toolkit** designed to process, enhance, and segment images using various edge detection and filtering algorithms. The application uses **Tkinter** for the user interface, **OpenCV** for image manipulation, and **NumPy** for numerical computations. The project demonstrates the implementation of classical computer vision techniques for segmentation, noise handling, and histogram equalization.
 
 ## Features
 
-- **Load and Display Images**: Load images from local storage and display them in the GUI.
-- **Edge Detection**: Apply different edge detection algorithms such as Canny, Sobel, and Prewitt.
-- **Noise Addition and Removal**: Add random noise to images and remove it using Gaussian blur.
-- **Histogram Equalization**: Improve the contrast of grayscale images.
-- **Histogram Visualization**: Show the pixel intensity histogram of the image.
+- **Image Loading and Saving**: Load images from local storage and save processed results.
+- **Grayscale Conversion**: Convert colored images into grayscale for further processing.
+- **Edge Detection Algorithms**:
+  - Canny Edge Detection
+  - Sobel Edge Detection
+  - Prewitt Edge Detection
+- **Difference of Gaussian (DoG)**: Detect edges by subtracting two Gaussian-blurred versions of the image.
+- **Noise Addition and Removal**:
+  - Add Gaussian noise to simulate real-world conditions.
+  - Remove noise using Gaussian blurring.
+- **Histogram Equalization**: Enhance image contrast by redistributing pixel intensity.
 
-## Image Processing Algorithms
+## Algorithms Description
 
-The following image processing techniques are implemented in this project:
+### 1. **Canny Edge Detection**
+Canny is a multi-stage edge detection algorithm that involves:
+- **Gaussian Smoothing**: Reduces noise by applying a Gaussian filter.
+- **Gradient Computation**: Uses Sobel filters to compute intensity gradients in the x and y directions.
+- **Non-Maximum Suppression**: Removes pixels that are not local maxima along the gradient direction.
+- **Double Thresholding**: Identifies strong and weak edges based on intensity thresholds.
+- **Edge Tracking by Hysteresis**: Connects weak edges to strong edges if they are part of a continuous boundary.
 
-1. **Canny Edge Detection**: Detect edges in the image using the Canny edge detection algorithm.
-2. **Sobel Edge Detection**: Apply Sobel filter for edge detection in horizontal and vertical directions.
-3. **Prewitt Edge Detection**: Use Prewitt operator for edge detection.
-4. **Difference of Gaussian**: Perform edge detection using a difference of Gaussian filter.
-5. **Add Noise**: Add Gaussian noise to the image.
-6. **Remove Noise**: Remove noise by applying Gaussian blur.
-7. **Histogram Equalization**: Equalize the histogram of a grayscale image to enhance contrast.
+**Usage**: Best for detecting clean, precise edges in noisy images.
+
+### 2. **Sobel Edge Detection**
+The Sobel method calculates the gradient of image intensity:
+- Applies kernels to detect horizontal and vertical edges.
+- Combines the results to calculate the magnitude of the gradient.
+
+**Usage**: Effective for detecting edges where noise is minimal.
+
+### 3. **Prewitt Edge Detection**
+Similar to Sobel, Prewitt applies convolution kernels for horizontal and vertical edge detection:
+- Horizontal kernel emphasizes changes in the x-direction.
+- Vertical kernel emphasizes changes in the y-direction.
+
+**Usage**: Simpler and faster but less accurate than Sobel.
+
+### 4. **Difference of Gaussian (DoG)**
+DoG enhances edges by subtracting two Gaussian-blurred images with different standard deviations. This highlights regions with significant intensity differences.
+
+**Usage**: Ideal for blob detection and edge enhancement.
+
+### 5. **Noise Handling**
+- **Add Noise**: Simulates real-world conditions by adding Gaussian noise.
+- **Remove Noise**: Reduces noise using a Gaussian blur, smoothing high-frequency variations.
+
+**Usage**: Useful for testing the robustness of algorithms against noisy data.
+
+### 6. **Histogram Equalization**
+Improves contrast by redistributing pixel intensities based on the cumulative distribution function (CDF). This ensures a uniform distribution of intensity levels.
+
+**Usage**: Enhances images with poor lighting conditions or low contrast.
 
 ## Requirements
 
 - Python 3.x
-- Tkinter
 - OpenCV
 - NumPy
 - PIL (Pillow)
-- Matplotlib
+- Matplotlib (for optional visualizations)
 
+## Usage Instructions
 
-## Usage
+1. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/your-repo/image-segmentation-toolkit.git
+   cd image-segmentation-toolkit
+   ```
 
-1. Load an image: Click on the "Load Image" button to select an image from your local storage.
-2. Apply image processing: Use the buttons on the left to apply various image processing algorithms like edge detection, noise addition/removal, or grayscale conversion.
-3. View the result: The processed image will be displayed on the right canvas.
-4. Save the processed image: Once the processing is done, click the "Save Processed Image" button to save the image to your desired location.
+2. **Install Dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. **Run the Application**:
+   ```bash
+   python main.py
+   ```
+
+4. **Load an Image**: Use the file dialog to select an image.
+5. **Apply Processing**: Select the desired algorithm (Canny, Sobel, etc.) and view the results.
+6. **Save Results**: Save the processed image back to local storage.
+
+## Contributions
+Feel free to contribute by adding new features or optimizing existing algorithms. Submit a pull request with detailed comments.
+
+## License
+This project is licensed under the MIT License.
+
