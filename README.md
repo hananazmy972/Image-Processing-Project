@@ -14,7 +14,6 @@ You can view the class diagram for this project in the attached PDF:
 - **Edge Detection**: Apply different edge detection algorithms such as Canny, Sobel, and Prewitt.
 - **Noise Addition and Removal**: Add random noise to images and remove it using Gaussian blur.
 - **Histogram Equalization**: Improve the contrast of grayscale images.
-- **Grayscale Conversion**: Convert color images to grayscale.
 - **Histogram Visualization**: Show the pixel intensity histogram of the image.
 
 ## Image Processing Algorithms
