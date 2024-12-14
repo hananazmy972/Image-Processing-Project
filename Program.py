@@ -150,7 +150,7 @@ class ImageProcessor:
                         gray_image[i, j] = gray
                 return gray_image
 
-            gray = to_grayscale(image)  # Convert to grayscale without built-in function
+            gray = to_grayscale(image)  # Convert to grayscale 
             img_gaussian = cv2.GaussianBlur(gray, (3, 3), 0)  # Reduce noise
 
             # Define Prewitt Kernels
