@@ -165,9 +165,40 @@ class ImageProcessor:
 
     @staticmethod
     def difference_of_gaussian(image):
-        blur1 = cv2.GaussianBlur(image, (5, 5), 0)
-        blur2 = cv2.GaussianBlur(image, (9, 9), 0)
-        return cv2.subtract(blur1, blur2)
+        # Parameters for Gaussian blur
+        small_kernel = (3, 3)
+        large_kernel = (11, 11)
+        sigma = 0  # Auto-calculated by OpenCV based on kernel size
+
+        # Check if the image is colorful (3 channels)
+        if len(image.shape) == 3 and image.shape[2] == 3:  # Colorful image
+            # Split the image into its color channels (R, G, B)
+            channels = cv2.split(image)
+            processed_channels = []
+
+            # Apply DoG on each channel
+            for channel in channels:
+                # Gaussian Blur with Smaller Kernel
+                blur1 = cv2.GaussianBlur(channel, small_kernel, sigma)
+                # Gaussian Blur with Larger Kernel
+                blur2 = cv2.GaussianBlur(channel, large_kernel, sigma)
+                # Subtract the Larger Blur from the Smaller Blur and amplify edges
+                dog_channel = cv2.subtract(blur1, blur2)
+                dog_channel = cv2.convertScaleAbs(dog_channel, alpha=2.0, beta=0)  # Scale to enhance edges
+                processed_channels.append(dog_channel)
+
+            # Merge processed channels back into a single image
+            dog = cv2.merge(processed_channels)
+        else:  # Grayscale image
+            # Gaussian Blur with Smaller Kernel
+            blur1 = cv2.GaussianBlur(image, small_kernel, sigma)
+            # Gaussian Blur with Larger Kernel
+            blur2 = cv2.GaussianBlur(image, large_kernel, sigma)
+            # Subtract the Larger Blur from the Smaller Blur and amplify edges
+            dog = cv2.subtract(blur1, blur2)
+            dog = cv2.convertScaleAbs(dog, alpha=2.0, beta=0)  # Scale to enhance edges
+
+        return dog
 
     @staticmethod
     def add_noise(image, noise_level):
