@@ -1,20 +1,27 @@
     @staticmethod
     def add_noise(image, noise_level):
-        """Add Gaussian noise to an image with reduced reliance on built-in methods."""
-        if len(image.shape) == 2:  # Grayscale image
-            noisy_image = np.zeros_like(image, dtype=np.int16)  # Intermediate result to prevent overflow
-            for i in range(image.shape[0]):
-                for j in range(image.shape[1]):
-                    noise = int(noise_level * (np.random.rand() - 0.5) * 2)  # Generate noise in range [-noise_level, noise_level]
-                    noisy_image[i, j] = image[i, j] + noise
-        else:  # Color image
-            noisy_image = np.zeros_like(image, dtype=np.int16)  # Intermediate result to prevent overflow
-            for i in range(image.shape[0]):
-                for j in range(image.shape[1]):
-                    for k in range(image.shape[2]):  # For each color channel
-                        noise = int(noise_level * (np.random.rand() - 0.5) * 2)  # Generate noise
-                        noisy_image[i, j, k] = image[i, j, k] + noise
-
-        # Clip the noisy image to valid pixel range [0, 255]
-        noisy_image = np.clip(noisy_image, 0, 255)
+        # Generate noise
+        noise = np.random.normal(0, noise_level, image.shape).astype(np.uint8)
+        
+        # Convert image and noise to int16 for addition to avoid overflow
+        image_int16 = image.astype(np.int16)
+        noise_int16 = noise.astype(np.int16)
+        
+        # Add noise to the image
+        noisy_image = image_int16 + noise_int16
+        
+        # Manually clip values to ensure they are in the range [0, 255]
+        rows, cols = noisy_image.shape[:2]
+        if len(noisy_image.shape) == 3:  # For color images
+            channels = noisy_image.shape[2]
+            for row in range(rows):
+                for col in range(cols):
+                    for channel in range(channels):
+                        noisy_image[row, col, channel] = max(0, min(255, noisy_image[row, col, channel]))
+        else:  # For grayscale images
+            for row in range(rows):
+                for col in range(cols):
+                    noisy_image[row, col] = max(0, min(255, noisy_image[row, col]))
+        
+        # Convert back to uint8
         return noisy_image.astype(np.uint8)
