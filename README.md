@@ -3,7 +3,7 @@
 ## Overview
 
 This project is a comprehensive **Image Segmentation and Processing Toolkit** designed to process, enhance, and segment images using various edge detection and filtering algorithms. The application uses **Tkinter** for the user interface, **OpenCV** for image manipulation, and **NumPy** for numerical computations. The project demonstrates the implementation of classical computer vision techniques for segmentation, noise handling, and histogram equalization.
-<img src="https://drive.google.com/file/d/1OqBkZBmujY4S21V771tmotHT-JYS4wHN/view?usp=sharing" width="1000">
+<img src="images/img.png" width="1000">
 
 ## Features
 
